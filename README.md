@@ -3,7 +3,7 @@
 * [Daily report](estimate.ipynb)
 * [Historical counts](ipynb_counts.csv)
 
-Getting the count from GitHub now requires user authentication. Here's the steps to update the count manually for the time being.
+[Getting the count](https://github.com/search/count?q=extension%3Aipynb+nbformat_minor&ref=searchresults&type=Code) from GitHub now requires user authentication. Here's the steps to update the count data manually for the time being.
 
 ```
 conda kapsel run update <count>
