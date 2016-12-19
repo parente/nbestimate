@@ -1,0 +1,23 @@
+name: nbestimate
+description: Estimate of public ipynb files on GitHub
+env_specs:
+  default:
+    packages:
+      - python
+      - jupyter
+      - matplotlib
+      - nbconvert
+      - nomkl
+      - pandas
+      - requests
+      - statsmodels
+    channels:
+      - conda-forge
+      - defaults
+commands:
+ render:
+    env_spec: default
+    unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
+ update:
+    env_spec: default
+    unix: python update.py
