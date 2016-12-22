@@ -21,6 +21,6 @@ commands:
   render:
     env_spec: default
     unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
-  commit:
+  push:
     env_spec: default
-    unix: git commit -a -m "Update for $(date '+%Y-%m-%d')" #&& git push
+    unix: git commit -a -m "Update for $(date '+%Y-%m-%d')" && git push
