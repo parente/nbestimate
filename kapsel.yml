@@ -15,9 +15,12 @@ env_specs:
       - conda-forge
       - defaults
 commands:
- render:
-    env_spec: default
-    unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
- update:
+  update:
     env_spec: default
     unix: python update.py
+  render:
+    env_spec: default
+    unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
+  commit:
+    env_spec: default
+    unix: git commit -a -m "Update for $(date '+%Y-%m-%d')" #&& git push
