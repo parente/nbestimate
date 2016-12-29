@@ -8,7 +8,7 @@
 ```
 conda kapsel run update <count>
 conda kapsel run render
-git commit -a -m "Update for $(date '+%Y-%m-%d')"
+conda kapsel run push
 ```
 
 Originally located at https://gist.github.com/parente/facb555dfbae28e817e0.
