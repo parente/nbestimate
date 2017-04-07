@@ -24,7 +24,7 @@ commands:
         conda kapsel run show
   update:
     env_spec: default
-    unix: open "https://github.com/search/count?q=extension%3Aipynb+nbformat_minor&ref=searchresu" && python update.py
+    unix: open "https://github.com/search?q=extension%3Aipynb+nbformat_minor&ref=searchresu" && python update.py
   render:
     env_spec: default
     unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
