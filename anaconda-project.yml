@@ -18,10 +18,10 @@ commands:
   all:
     env_spec: default
     unix: >
-        conda kapsel run update &&
-        conda kapsel run render &&
-        conda kapsel run push &&
-        conda kapsel run show
+        anaconda-project run update &&
+        anaconda-project run render &&
+        anaconda-project run push &&
+        anaconda-project run show
   update:
     env_spec: default
     unix: open "https://github.com/search?q=extension%3Aipynb+nbformat_minor&ref=searchresu" && python update.py
