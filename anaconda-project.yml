@@ -15,14 +15,7 @@ env_specs:
       - conda-forge
       - defaults
 commands:
-  all:
-    env_spec: default
-    unix: >
-        anaconda-project run update &&
-        anaconda-project run render &&
-        anaconda-project run push &&
-        anaconda-project run show
-  update:
+ update:
     env_spec: default
     unix: open "https://github.com/search?q=extension%3Aipynb+nbformat_minor&ref=searchresu" && python update.py
   render:
