@@ -4,6 +4,7 @@ env_specs:
   default:
     packages:
       - python
+      - anaconda-project
       - jupyter
       - matplotlib
       - nbconvert
@@ -16,14 +17,16 @@ env_specs:
       - defaults
 commands:
   update:
-    env_spec: default
     unix: open "https://github.com/search?q=extension%3Aipynb+nbformat_minor&ref=searchresu" && python update.py
   render:
-    env_spec: default
     unix: jupyter-nbconvert --execute --to notebook --output estimate.ipynb estimate.src.ipynb
   push:
-    env_spec: default
     unix: git commit -a -m "Update for $(date '+%Y-%m-%d')" && git push
   show:
-    env_spec: default
     unix: open "http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb"
+  all:
+    unix: |
+      anaconda-project run update &&
+      anaconda-project run render &&
+      anaconda-project run push &&
+      anaconda-project run show
