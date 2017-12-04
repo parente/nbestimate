@@ -1,0 +1,12 @@
+name: nbestimate
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - jupyter
+  - matplotlib
+  - nbconvert
+  - nomkl
+  - pandas
+  - requests
+  - statsmodels
