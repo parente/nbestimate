@@ -18,13 +18,15 @@ def main():
     try:
         count = sys.argv[1]
     except IndexError:
-        count = input('Enter the search hit count for {}: '.format(dt))
+        count = input(f'Enter the search hit count for {dt}: ')
     count = count.strip().replace(',', '')
-    line = '{},{}\n'.format(dt, int(count))
-
-    print("Appending hit count to CSV")
-    with open('ipynb_counts.csv', 'a') as f:
-        f.write(line)
+    if count:
+        line = '{dt},{count}\n'
+        print("Appending hit count to CSV")
+        with open('ipynb_counts.csv', 'a') as f:
+            f.write(line)
+    else:
+        print('Skipped appending hit count')
 
     print("Executing estimate notebook")
     with open('estimate.src.ipynb') as fp:
