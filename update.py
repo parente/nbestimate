@@ -21,7 +21,7 @@ def main():
         count = input(f'Enter the search hit count for {dt}: ')
     count = count.strip().replace(',', '')
     if count:
-        line = '{dt},{count}\n'
+        line = f'{dt},{count}\n'
         print("Appending hit count to CSV")
         with open('ipynb_counts.csv', 'a') as f:
             f.write(line)
