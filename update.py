@@ -1,51 +1,161 @@
 #!/usr/bin/env python
+import argparse
+import os
 import sys
 import webbrowser
 
 from datetime import datetime
-from subprocess import check_call
+from subprocess import check_call, DEVNULL
 
 import nbformat
+import requests
 
 from nbconvert.preprocessors import ExecutePreprocessor
 
 
-def main():
-    print("Opening search results")
-    webbrowser.open('https://github.com/search?q=extension%3Aipynb+nbformat_minor&ref=searchresu')
+def fetch_count(username, token):
+    """Queries the GitHub API to get the current ipynb count.
 
-    dt = datetime.now().strftime('%Y-%m-%d')
-    try:
-        count = sys.argv[1]
-    except IndexError:
-        count = input(f'Enter the search hit count for {dt}: ')
-    count = count.strip().replace(',', '')
-    if count:
-        line = f'{dt},{count}\n'
-        print("Appending hit count to CSV")
-        with open('ipynb_counts.csv', 'a') as f:
-            f.write(line)
+    Parameters
+    ----------
+    username: str
+        GitHub API username
+    token: str
+        GitHub API token
+
+    Returns
+    -------
+    int
+    """
+    resp = requests.get(
+        'https://api.github.com/search/code?q=nbformat_minor+extension:ipynb',
+        auth=(username, token)
+    )
+    resp.raise_for_status()
+    return resp.json()['total_count']
+
+
+def store_count(date, count, filename='ipynb_counts.csv'):
+    """Reads the CSV containing the historical `year-month-day,count` pairs
+    and upserts the count for the current date.
+
+    Parameters
+    ----------
+    date: str
+        Date in year-month-day format
+    count: int
+        Count of ipynb files
+    filename: str
+        CSV filename
+    """
+    # Read the historical counts if the file containing them exists
+    if os.path.isfile(filename):
+        with open(filename) as fh:
+            lines = fh.readlines()
+        counts = dict(line.strip().split(',') for line in lines[1:])
     else:
-        print('Skipped appending hit count')
+        counts = {}
 
-    print("Executing estimate notebook")
-    with open('estimate.src.ipynb') as fp:
+    # Upsert the count for the given date
+    counts[date] = count
+
+    # Write out the CSV sorted by date
+    with open(filename, 'w') as fh:
+        fh.write('date,hits\n')
+        for date in sorted(counts):
+            fh.write(f'{date},{counts[date]}\n')
+
+
+def execute_notebook(src='estimate.src.ipynb', dest='estimate.ipynb'):
+    """Executes the analysis notebook and writes out a copy with all of the
+    resulting tables and plots.
+
+    Parameters
+    ----------
+    src: str, optional
+        Source notebook to execute
+    dest: str, optional
+        Output notebook
+    """
+    with open(src) as fp:
         nb = nbformat.read(fp, 4)
 
     exp = ExecutePreprocessor(timeout=60)
     updated_nb, _ = exp.preprocess(nb, {})
 
-    print("Saving estimate results")
-    with open('estimate.ipynb', 'w') as fp:
+    with open(dest, 'w') as fp:
         nbformat.write(updated_nb, fp)
 
-    print("Git committing and pushing")
-    check_call(['git', 'commit', '-a', '-m', 'Update for {}'.format(dt)])
-    check_call(['git', 'push'])
 
-    print('Done!')
-    webbrowser.open('http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb')
+def configure_travis_git(token, repo='parente/nbestimate'):
+    """Configures TravisCI to push to GitHub.
+
+    Parameters
+    ----------
+    token: str
+        GitHub API token
+    repo: str, optional
+        GitHub org/repo
+    """
+    check_call(['git', 'config', '--global', 'user.email' 'travis@travis-ci.org'])
+    check_call(['git', 'config', '--global', 'user.name' 'Travis CI'])
+    check_call(['git', 'remote', 'add', 'origin', f'https://${token}@github.com/{repo}.git'],
+                stdout=DEVNULL, stderr=DEVNULL)
+
+
+def commit_and_push(date):
+    """Commits all changed files in the local sandbox and pushes them to origin.
+
+    Parameters
+    ----------
+    date: str
+        Date in year-month-day format
+    """
+    check_call(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
+    check_call(['git', 'push', '--quiet', '-u', 'origin', 'master'])
+
+
+def main(argv):
+    """Uses the GitHub API to estimate the current count of public ipynb files on GitHub,
+    stores that count in a CSV file associated with today's date (localtime), executes
+    a notebook to analyze the growth, and commits the CSV and executed notebook back
+    to GitHub.
+
+    Parameters
+    ----------
+    argv: list
+        Command line arguments
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--skip-fetch', action='store_true',
+                        help='Skip fetching the current count from GitHub')
+    parser.add_argument('--skip-execute', action='store_true',
+                        help='Skip executing the notebook analysis')
+    parser.add_argument('--skip-push', action='store_true',
+                        help='Skip committing and pushing the result to GitHub')
+    args = parser.parse_args(argv)
+
+    token = os.environ['GH_TOKEN']
+    date = datetime.now().strftime('%Y-%m-%d')
+
+    if not args.skip_fetch:
+        print(f'Fetching count for {date}')
+        count = fetch_count('parente', token)
+        print(f'Storing count {count} for {date}')
+        store_count(date, count)
+
+    if not args.skip_execute:
+        print('Executing notebook')
+        execute_notebook()
+
+    if not args.skip_push:
+        if os.getenv('TRAVIS'):
+            print('Configuring TravisCI for commit to GitHub')
+            configure_travis_git(token)
+        print('Conmitting and pushing update')
+        commit_and_push(date)
+        print('Complete. Visit http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb?flush_cache=true')
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
