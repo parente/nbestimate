@@ -5,7 +5,7 @@ import sys
 import webbrowser
 
 from datetime import datetime
-from subprocess import check_call, check_output, CalledProcessError, DEVNULL, STDOUT
+from subprocess import call, check_call, check_output, CalledProcessError, DEVNULL, STDOUT
 
 import nbformat
 import requests
@@ -87,7 +87,7 @@ def execute_notebook(src='estimate.src.ipynb', dest='estimate.ipynb'):
         nbformat.write(updated_nb, fp)
 
 
-def configure_travis_git(token, repo='parente/nbestimate'):
+def configure_ci_git(token, repo='parente/nbestimate'):
     """Configures TravisCI to push to GitHub.
 
     Parameters
@@ -97,13 +97,12 @@ def configure_travis_git(token, repo='parente/nbestimate'):
     repo: str, optional
         GitHub org/repo
     """
-    #check_call(['git', 'config', '--global', 'user.email' 'travis@travis-ci.org'])
-    #check_call(['git', 'config', '--global', 'user.name' 'Travis CI'])
-    check_call(['git', 'remote', 'add', 'origin-pushback', f'https://{token}@github.com/{repo}.git'],
+    call(['git', 'remote', 'rm', 'origin'])
+    check_call(['git', 'remote', 'add', 'origin', f'https://{token}@github.com/{repo}.git'],
                 stdout=DEVNULL, stderr=DEVNULL)
 
 
-def commit_and_push(date):
+def git_commit_and_push(date):
     """Commits all changed files in the local sandbox and pushes them to origin-pushback.
 
     Parameters
@@ -111,9 +110,9 @@ def commit_and_push(date):
     date: str
         Date in year-month-day format
     """
-    print(check_output(['git', 'checkout', 'master']))
-    print(check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)]))
-    print(check_output(['git', 'push', 'origin-pushback', 'master']))
+    print(check_output(['git', 'checkout', 'master'], encoding='utf-8'))
+    print(check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)], encoding='utf-8'))
+    print(check_output(['git', 'push', 'origin', 'master'], encoding='utf-8'))
 
 
 def main(argv):
@@ -152,9 +151,9 @@ def main(argv):
     if not args.skip_push:
         if os.getenv('TRAVIS'):
             print('Configuring TravisCI for commit to GitHub')
-            configure_travis_git(token)
+            configure_ci_git(token)
         print('Conmitting and pushing update')
-        commit_and_push(date)
+        git_commit_and_push(date)
         print('Complete. Visit http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb?flush_cache=true')
 
 
