@@ -99,7 +99,7 @@ def configure_travis_git(token, repo='parente/nbestimate'):
     """
     #check_call(['git', 'config', '--global', 'user.email' 'travis@travis-ci.org'])
     #check_call(['git', 'config', '--global', 'user.name' 'Travis CI'])
-    check_call(['git', 'remote', 'add', 'origin-pushback', f'https://${token}@github.com/{repo}.git'],
+    check_call(['git', 'remote', 'add', 'origin-pushback', f'https://{token}@github.com/{repo}.git'],
                 stdout=DEVNULL, stderr=DEVNULL)
 
 
@@ -111,12 +111,8 @@ def commit_and_push(date):
     date: str
         Date in year-month-day format
     """
-    try:
-        check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
-        check_output(['git', 'push', '-u', 'origin-pushback', 'master'], stderr=STDOUT)
-    except CalledProcessError as ex:
-        print(f'Error: {ex.output}')
-        raise ex
+    check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
+    check_output(['git', 'push', 'origin-pushback', 'master'])
 
 
 def main(argv):
