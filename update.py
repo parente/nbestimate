@@ -111,8 +111,8 @@ def commit_and_push(date):
     date: str
         Date in year-month-day format
     """
-    check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
-    check_output(['git', 'push', 'origin-pushback', 'master'])
+    print(check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)]))
+    print(check_output(['git', 'push', 'origin-pushback', 'master']))
 
 
 def main(argv):
