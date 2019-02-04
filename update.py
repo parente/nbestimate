@@ -5,7 +5,7 @@ import sys
 import webbrowser
 
 from datetime import datetime
-from subprocess import check_call, DEVNULL
+from subprocess import check_call, check_output, CalledProcessError, DEVNULL
 
 import nbformat
 import requests
@@ -112,7 +112,11 @@ def commit_and_push(date):
         Date in year-month-day format
     """
     check_call(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
-    check_call(['git', 'push', '--quiet', '-u', 'origin-pushback', 'master'])
+    try:
+        check_call(['git', 'push', '--quiet', '-u', 'origin-pushback', 'master'])
+    except CalledProcessError as ex:
+        print(f'Error: {ex.output}')
+        raise ex
 
 
 def main(argv):
