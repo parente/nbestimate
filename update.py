@@ -113,7 +113,7 @@ def commit_and_push(date):
     """
     try:
         check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)])
-        check_output(['git', 'push', '--quiet', '-u', 'origin-pushback', 'master'], stderr=STDOUT)
+        check_output(['git', 'push', '-u', 'origin-pushback', 'master'], stderr=STDOUT)
     except CalledProcessError as ex:
         print(f'Error: {ex.output}')
         raise ex
