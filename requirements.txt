@@ -1,7 +1,6 @@
+fbprophet
 matplotlib
 notebook
 nbconvert
 pandas
 requests
-scipy # dep of statsmodels
-statsmodels
