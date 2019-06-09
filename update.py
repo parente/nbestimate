@@ -5,6 +5,7 @@ import sys
 import webbrowser
 
 from datetime import datetime
+from statistics import median
 from subprocess import call, check_call, check_output, CalledProcessError, DEVNULL, STDOUT
 
 import nbformat
@@ -13,8 +14,10 @@ import requests
 from nbconvert.preprocessors import ExecutePreprocessor
 
 
-def fetch_count(username, token):
+def fetch_count(username, token, samples=5):
     """Queries the GitHub API to get the current ipynb count.
+
+    Takes the median of multiple samples and truncates to an int.
 
     Parameters
     ----------
@@ -22,17 +25,22 @@ def fetch_count(username, token):
         GitHub API username
     token: str
         GitHub API token
+    samples: int
+        Number of samples to take from the GitHub API
 
     Returns
     -------
     int
     """
-    resp = requests.get(
-        'https://api.github.com/search/code?q=nbformat_minor+extension:ipynb',
-        auth=(username, token)
-    )
-    resp.raise_for_status()
-    return resp.json()['total_count']
+    counts = []
+    for i in range(samples):
+        resp = requests.get(
+            'https://api.github.com/search/code?q=nbformat_minor+extension:ipynb',
+            auth=(username, token)
+        )
+        resp.raise_for_status()
+        counts.append(resp.json()['total_count'])
+    return int(median(counts))
 
 
 def store_count(date, count, filename='ipynb_counts.csv'):
