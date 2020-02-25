@@ -88,7 +88,7 @@ def execute_notebook(src='estimate.src.ipynb', dest='estimate.ipynb'):
     with open(src) as fp:
         nb = nbformat.read(fp, 4)
 
-    exp = ExecutePreprocessor(timeout=60)
+    exp = ExecutePreprocessor(timeout=300)
     updated_nb, _ = exp.preprocess(nb, {})
 
     with open(dest, 'w') as fp:
