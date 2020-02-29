@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "nbestimate"
+version = "1.0.0"
+description = "Estimate of Public Jupyter Notebooks on GitHub"
+authors = ["Peter Parente <parente@gmail.com>"]
+readme = 'README.md'
+repository = "https://github.com/parente/nbestimate"
+homepage = "https://github.com/parente/nbestimate"
+
+[tool.poetry.dependencies]
+python = "~3.7"
+fbprophet = "*"
+matplotlib = "*"
+notebook = "*"
+nbconvert = "*"
+pandas = "*"
+requests = "*"

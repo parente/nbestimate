@@ -1,3 +1,3 @@
-envs/
+.venv/
 .ipynb_checkpoints/
 .vscode/
