@@ -8,7 +8,7 @@ repository = "https://github.com/parente/nbestimate"
 homepage = "https://github.com/parente/nbestimate"
 
 [tool.poetry.dependencies]
-python = "~3"
+python = "~3.9"
 fbprophet = "*"
 ipywidgets = "*"
 matplotlib = "*"
