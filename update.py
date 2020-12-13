@@ -35,7 +35,8 @@ def fetch_count(username, token, samples=5):
     counts = []
     for i in range(samples):
         resp = requests.get(
-            'https://api.github.com/search/code?q=nbformat_minor+extension:ipynb',
+            'https://api.github.com/search/code?q=nbformat+in:file+extension:ipynb',
+            headers={"Accept": "application/vnd.github.v3+json"},
             auth=(username, token)
         )
         resp.raise_for_status()
@@ -135,6 +136,8 @@ def main(argv):
         Command line arguments
     """
     parser = argparse.ArgumentParser()
+    parser.add_argument('--assert-more-than', type=int, default=0,
+                        help='Abort further actions if the count is less than the given value')
     parser.add_argument('--skip-fetch', action='store_true',
                         help='Skip fetching the current count from GitHub')
     parser.add_argument('--skip-execute', action='store_true',
@@ -149,6 +152,7 @@ def main(argv):
     if not args.skip_fetch:
         print(f'Fetching count for {date}')
         count = fetch_count('parente', token)
+        assert count >= args.assert_more_than, f"{count} < {args.assert_more_than}"
         print(f'Storing count {count} for {date}')
         store_count(date, count)
 
