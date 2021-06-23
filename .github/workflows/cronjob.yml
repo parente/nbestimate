@@ -7,9 +7,6 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -25,5 +22,9 @@ jobs:
           pip install poetry
           poetry install
       - name: Run update script
+        permissions:
+          contents: write
         run: |
           poetry run ./update.py --skip-execute
+        env:
+          GITHUB_TOKEN: {{ secrets.GITHUB_TOKEN }}
