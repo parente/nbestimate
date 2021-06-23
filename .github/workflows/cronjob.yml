@@ -1,7 +1,8 @@
 name: Update Estimate
 
 on:
-  cron: "0 5 * * *"
+  schedule: 
+    - cron: "0 5 * * *"
   push:
     branches:
       - master
