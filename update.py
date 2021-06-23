@@ -146,7 +146,7 @@ def main(argv):
                         help='Skip committing and pushing the result to GitHub')
     args = parser.parse_args(argv)
 
-    token = os.environ['GH_TOKEN']
+    token = os.environ['GITHUB_TOKEN']
     date = datetime.now().strftime('%Y-%m-%d')
 
     if not args.skip_fetch:
