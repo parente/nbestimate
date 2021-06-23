@@ -1,8 +1,6 @@
 # Estimate of Public Jupyter Notebooks on GitHub
 
 * [See the historical count data in a CSV](ipynb_counts.csv)
-* Play with the data yourself:
-  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/parente/nbestimate/master?filepath=estimate.src.ipynb)
 
 A brief history of this project:
 

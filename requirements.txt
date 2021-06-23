@@ -1,6 +1,0 @@
-fbprophet
-matplotlib
-notebook
-nbconvert
-pandas
-requests
