@@ -104,7 +104,7 @@ def execute_notebook(src="estimate.src.ipynb", dest="estimate.ipynb"):
 
 
 def configure_ci_git(token, repo="parente/nbestimate"):
-    """Configures TravisCI to push to GitHub.
+    """Configures CI to push to GitHub.
 
     Parameters
     ----------
@@ -118,6 +118,10 @@ def configure_ci_git(token, repo="parente/nbestimate"):
         ["git", "remote", "add", "origin", f"https://{token}@github.com/{repo}.git"],
         stdout=DEVNULL,
         stderr=DEVNULL,
+    )
+    call(["git", "config", "--global", "user.name", "GitHub Actions"])
+    call(
+        ["git", "config", "--global", "user.email", "actions@users.noreply.github.com"]
     )
 
 
