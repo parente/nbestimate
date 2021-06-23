@@ -6,7 +6,14 @@ import webbrowser
 
 from datetime import datetime
 from statistics import median
-from subprocess import call, check_call, check_output, CalledProcessError, DEVNULL, STDOUT
+from subprocess import (
+    call,
+    check_call,
+    check_output,
+    CalledProcessError,
+    DEVNULL,
+    STDOUT,
+)
 
 import nbformat
 import requests
@@ -35,16 +42,16 @@ def fetch_count(username, token, samples=5):
     counts = []
     for i in range(samples):
         resp = requests.get(
-            'https://api.github.com/search/code?q=nbformat+in:file+extension:ipynb',
+            "https://api.github.com/search/code?q=nbformat+in:file+extension:ipynb",
             headers={"Accept": "application/vnd.github.v3+json"},
-            auth=(username, token)
+            auth=(username, token),
         )
         resp.raise_for_status()
-        counts.append(resp.json()['total_count'])
+        counts.append(resp.json()["total_count"])
     return int(median(counts))
 
 
-def store_count(date, count, filename='ipynb_counts.csv'):
+def store_count(date, count, filename="ipynb_counts.csv"):
     """Reads the CSV containing the historical `year-month-day,count` pairs
     and upserts the count for the current date.
 
@@ -61,7 +68,7 @@ def store_count(date, count, filename='ipynb_counts.csv'):
     if os.path.isfile(filename):
         with open(filename) as fh:
             lines = fh.readlines()
-        counts = dict(line.strip().split(',') for line in lines[1:])
+        counts = dict(line.strip().split(",") for line in lines[1:])
     else:
         counts = {}
 
@@ -69,13 +76,13 @@ def store_count(date, count, filename='ipynb_counts.csv'):
     counts[date] = count
 
     # Write out the CSV sorted by date
-    with open(filename, 'w') as fh:
-        fh.write('date,hits\n')
+    with open(filename, "w") as fh:
+        fh.write("date,hits\n")
         for date in sorted(counts):
-            fh.write(f'{date},{counts[date]}\n')
+            fh.write(f"{date},{counts[date]}\n")
 
 
-def execute_notebook(src='estimate.src.ipynb', dest='estimate.ipynb'):
+def execute_notebook(src="estimate.src.ipynb", dest="estimate.ipynb"):
     """Executes the analysis notebook and writes out a copy with all of the
     resulting tables and plots.
 
@@ -92,11 +99,11 @@ def execute_notebook(src='estimate.src.ipynb', dest='estimate.ipynb'):
     exp = ExecutePreprocessor(timeout=300)
     updated_nb, _ = exp.preprocess(nb, {})
 
-    with open(dest, 'w') as fp:
+    with open(dest, "w") as fp:
         nbformat.write(updated_nb, fp)
 
 
-def configure_ci_git(token, repo='parente/nbestimate'):
+def configure_ci_git(token, repo="parente/nbestimate"):
     """Configures TravisCI to push to GitHub.
 
     Parameters
@@ -106,9 +113,12 @@ def configure_ci_git(token, repo='parente/nbestimate'):
     repo: str, optional
         GitHub org/repo
     """
-    call(['git', 'remote', 'rm', 'origin'])
-    check_call(['git', 'remote', 'add', 'origin', f'https://{token}@github.com/{repo}.git'],
-                stdout=DEVNULL, stderr=DEVNULL)
+    call(["git", "remote", "rm", "origin"])
+    check_call(
+        ["git", "remote", "add", "origin", f"https://{token}@github.com/{repo}.git"],
+        stdout=DEVNULL,
+        stderr=DEVNULL,
+    )
 
 
 def git_commit_and_push(date):
@@ -119,9 +129,14 @@ def git_commit_and_push(date):
     date: str
         Date in year-month-day format
     """
-    print(check_output(['git', 'checkout', 'master'], encoding='utf-8'))
-    print(check_output(['git', 'commit', '-a', '-m', 'Update for {}'.format(date)], encoding='utf-8'))
-    print(check_output(['git', 'push', 'origin', 'master'], encoding='utf-8'))
+    print(check_output(["git", "checkout", "master"], encoding="utf-8"))
+    print(
+        check_output(
+            ["git", "commit", "-a", "-m", "Update for {}".format(date)],
+            encoding="utf-8",
+        )
+    )
+    print(check_output(["git", "push", "origin", "master"], encoding="utf-8"))
 
 
 def main(argv):
@@ -136,38 +151,53 @@ def main(argv):
         Command line arguments
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--assert-more-than', type=int, default=0,
-                        help='Abort further actions if the count is less than the given value')
-    parser.add_argument('--skip-fetch', action='store_true',
-                        help='Skip fetching the current count from GitHub')
-    parser.add_argument('--skip-execute', action='store_true',
-                        help='Skip executing the notebook analysis')
-    parser.add_argument('--skip-push', action='store_true',
-                        help='Skip committing and pushing the result to GitHub')
+    parser.add_argument(
+        "--assert-more-than",
+        type=int,
+        default=0,
+        help="Abort further actions if the count is less than the given value",
+    )
+    parser.add_argument(
+        "--skip-fetch",
+        action="store_true",
+        help="Skip fetching the current count from GitHub",
+    )
+    parser.add_argument(
+        "--skip-execute",
+        action="store_true",
+        help="Skip executing the notebook analysis",
+    )
+    parser.add_argument(
+        "--skip-push",
+        action="store_true",
+        help="Skip committing and pushing the result to GitHub",
+    )
     args = parser.parse_args(argv)
 
-    token = os.environ['GITHUB_TOKEN']
-    date = datetime.now().strftime('%Y-%m-%d')
+    token = os.environ["GITHUB_TOKEN"]
+    date = datetime.now().strftime("%Y-%m-%d")
 
     if not args.skip_fetch:
-        print(f'Fetching count for {date}')
-        count = fetch_count('parente', token)
+        print(f"Fetching count for {date}")
+        count = fetch_count("parente", token)
         assert count >= args.assert_more_than, f"{count} < {args.assert_more_than}"
-        print(f'Storing count {count} for {date}')
+        print(f"Storing count {count} for {date}")
         store_count(date, count)
 
     if not args.skip_execute:
-        print('Executing notebook')
+        print("Executing notebook")
         execute_notebook()
 
     if not args.skip_push:
-        if os.getenv('TRAVIS'):
-            print('Configuring TravisCI for commit to GitHub')
+        if os.getenv("CI"):
+            print("Configuring CI for commit to GitHub")
             configure_ci_git(token)
-        print('Conmitting and pushing update')
+        print("Conmitting and pushing update")
         git_commit_and_push(date)
-        print('Complete. Visit http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb?flush_cache=true')
+        print(
+            "Complete. Visit http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb?flush_cache=true"
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1:])
