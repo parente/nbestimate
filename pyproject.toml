@@ -9,6 +9,11 @@ homepage = "https://github.com/parente/nbestimate"
 
 [tool.poetry.dependencies]
 python = "~3.9"
+matplotlib = "*"
 nbconvert = "*"
 nbformat = "*"
 requests = "*"
+pandas = "*"
+
+[tool.poetry.dev-dependencies]
+jupyterlab = "*"

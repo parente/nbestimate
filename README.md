@@ -1,8 +1,9 @@
 # Estimate of Public Jupyter Notebooks on GitHub
 
-* [See the historical count data in a CSV](ipynb_counts.csv)
+* [View the daily report notebook](https://github.com/parente/nbestimate/blob/master/estimate.ipynb)
+* [See the raw count data in a CSV](https://github.com/parente/nbestimate/blob/master/ipynb_counts.csv)
 
-A brief history of this project:
+## Data Collection History
 
 * Late-2014 to mid-2016: I wrote a script that scrapes the GitHub web search UI for the count,
   appends to a CSV, executes a notebook, and stores the results in a gist at
@@ -21,3 +22,13 @@ A brief history of this project:
   and aren’t now? I stopped collecting data.
 * June 2021: I started collecting data again but disabled the notebook showing the historical and
   predicted counts.
+* July 2021: I revived the notebook showing the historical counts but kept prediction disabled.
+
+## Assumptions
+
+1. That the search query hits and notebooks on GitHub are in 1:1 correspondence.
+1. That GitHub is accurately reporting the total number of `*.ipynb` file hits.
+1. That the result is **not** inflated due to GitHub forks.
+    * Evidence: We do not see the tutorial notebooks from the ipython/ipython GitHub repository duplicated in the search results because of the 2,000+ forks of the ipython/ipython repo.
+1. That the result **is** inflated a tiny bit by manually created duplicates of notebooks.
+    * Evidence: Some people seem to download their favorite notebooks and then upload them into their own git repositories for safe keeping.

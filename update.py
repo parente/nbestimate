@@ -178,12 +178,11 @@ def main(argv):
     )
     args = parser.parse_args(argv)
 
-    token = os.environ["GITHUB_TOKEN"]
     date = datetime.now().strftime("%Y-%m-%d")
 
     if not args.skip_fetch:
         print(f"Fetching count for {date}")
-        count = fetch_count("parente", token)
+        count = fetch_count("parente", os.environ["GITHUB_TOKEN"])
         assert count >= args.assert_more_than, f"{count} < {args.assert_more_than}"
         print(f"Storing count {count} for {date}")
         store_count(date, count)
@@ -195,12 +194,9 @@ def main(argv):
     if not args.skip_push:
         if os.getenv("CI"):
             print("Configuring CI for commit to GitHub")
-            configure_ci_git(token)
+            configure_ci_git(os.environ["GITHUB_TOKEN"])
         print("Conmitting and pushing update")
         git_commit_and_push(date)
-        print(
-            "Complete. Visit http://nbviewer.jupyter.org/github/parente/nbestimate/blob/master/estimate.ipynb?flush_cache=true"
-        )
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 name: Update Estimate
 
 on:
-  schedule: 
+  schedule:
     - cron: "0 5 * * *"
   push:
     branches:
@@ -26,6 +26,6 @@ jobs:
           poetry install
       - name: Run update script
         run: |
-          poetry run ./update.py --skip-execute
+          poetry run ./update.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
