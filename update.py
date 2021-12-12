@@ -2,7 +2,7 @@
 import argparse
 import os
 import sys
-import webbrowser
+import time
 
 from datetime import datetime
 from statistics import median
@@ -12,7 +12,6 @@ from subprocess import (
     check_output,
     CalledProcessError,
     DEVNULL,
-    STDOUT,
 )
 
 import nbformat
@@ -21,10 +20,11 @@ import requests
 from nbconvert.preprocessors import ExecutePreprocessor
 
 
-def fetch_count(username, token, samples=5):
+def fetch_count(username, token, samples=3, tries=10):
     """Queries the GitHub API to get the current ipynb count.
 
-    Takes the median of multiple samples and truncates to an int.
+    Takes the median of multiple samples to account for wildly different results that appear from
+    time to time and truncates to an int.
 
     Parameters
     ----------
@@ -34,20 +34,32 @@ def fetch_count(username, token, samples=5):
         GitHub API token
     samples: int
         Number of samples to take from the GitHub API
+    tries: int
+        Maximum number of times to try to fetch before failing
 
     Returns
     -------
     int
     """
     counts = []
-    for i in range(samples):
+    for i in range(tries):
         resp = requests.get(
             "https://api.github.com/search/code?q=nbformat+in:file+extension:ipynb",
             headers={"Accept": "application/vnd.github.v3+json"},
             auth=(username, token),
         )
-        resp.raise_for_status()
-        counts.append(resp.json()["total_count"])
+        if resp.ok:
+            count = resp.json()["total_count"]
+            counts.append(count)
+            print(f"Fetched sample #{i}: {count}")
+        else:
+            print(resp.text)
+        if len(counts) == samples:
+            break
+        # Linear backoff in minutes
+        time.sleep((i + 1) * 60)
+    else:
+        raise RuntimeError(f"Could not fetch {samples} samples in {tries} tries")
     return int(median(counts))
 
 
